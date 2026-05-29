@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athar Food Industries - Master ERP</title>
+    <style>
+        :root {
+            --primary: #E65100;
+            --primary-light: #FFF3E0;
+            --success: #4CAF50;
+            --success-light: #E8F5E9;
+            --danger: #D32F2F;
+            --text-dark: #333;
+            --bg-card: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            color: var(--text-dark);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            min-height: 100vh;
+            background: #fafafa;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: var(--primary);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+        }
+        .header h1 { margin: 0; font-size: 24px; font-weight: bold; }
+        .header p { margin: 5px 0 0 0; font-size: 13px; opacity: 0.8; }
+
+        .content { padding: 15px; flex: 1; }
+
+        .menu-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border: 1px solid #eee;
+        }
+        .menu-icon { font-size: 28px; margin-left: 15px; }
+        .menu-text h3 { margin: 0; font-size: 16px; }
+        .menu-text p { margin: 3px 0 0 0; font-size: 12px; color: #666; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 15px 0 8px 0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 3px;
+        }
+        .row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .input-group { flex: 1; display: flex; flex-direction: column; }
+        .input-group label { font-size: 11px; margin-bottom: 3px; color: #555; }
+        .input-group input, .input-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 15px 0;
+        }
+        .btn-danger { background-color: var(--danger); }
+        .btn-back {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .result-box {
+            background: var(--success-light);
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1b5e20;
+            display: none;
+            margin-top: 10px;
+        }
+        .summary-box {
+            background: #E8F5E9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .history-list { max-height: 350px; overflow-y: auto; }
+        .history-card {
+            background: var(--primary-light);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        .history-card-header { font-weight: bold; display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .history-card-row { display: flex; justify-content: space-between; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <div id="screen-dashboard" class="screen active">
+        <div class="header">
+            <h1>ATHAR FOODS</h1>
+            <p>Industrial Production Manager v2.5 (Pro Storage)</p>
+        </div>
+        <div class="content">
+            <div class="menu-card" onclick="switchScreen('screen-calculator')">
+                <div class="menu-icon">🏭</div>
+                <div class="menu-text">
+                    <h3>نیا گھان تیار کریں</h3>
+                    <p>ملٹی ریسیپی کیلکولیٹر اور محفوظ ڈیٹا انٹری</p>
+                </div>
+            </div>
+            <div class="menu-card" onclick="switchScreen('screen-history'); renderHistory();">
+                <div class="menu-icon">📊</div>
+                <div class="menu-text">
+                    <h3>موجودہ ہفتے کی رپورٹ</h3>
+                    <p>مستقل محفوظ شدہ ہسٹری اور منافع لاگ</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen-calculator" class="screen">
+        <div class="header" style="padding: 15px;">
+            <h2 style="margin:0; font-size: 18px;">نیا گھان (Batch Tracker)</h2>
+        </div>
+        <div class="content">
+            
+            <div class="section-title">🍕 ریسیپی کا انتخاب کریں:</div>
+            <div class="row">
+                <div class="input-group">
+                    <label>پروڈکٹ ریسیپی</label>
+                    <select id="recipe-select" onchange="updateRecipeLabels()">
+                        <option value="khatai">روایتی نان خطائی ریسیپی</option>
+                        <option value="cake">کمرشل کیک / بسکٹ ریسیپی</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="section-title">📅 تاریخ اور کاریگر کی پروفائل:</div>
+            <div class="row">
+                <div class="input-group"><label>تاریخ</label><input type="date" id="batch-date"></div>
+                <div class="input-group"><label>کاریگر کا نام</label><input type="text" id="worker-name" value="اسلم کاریگر"></div>
+            </div>
+
+            <div class="section-title">📋 مٹیریل کی تفصیلات:</div>
+            <div class="row">
+                <div class="input-group"><label id="lbl-m1">میدہ قیمت/KG</label><input type="number" id="maida-p" value="150"></div>
+                <div class="input-group"><label id="lbl-mw1">میدہ وزن (G)</label><input type="number" id="maida-w" value="1000"></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label id="lbl-m2">چینی قیمت/KG</label><input type="number" id="sugar_p" value="140"></div>
+                <div class="input-group"><label id="lbl-mw2">چینی وزن (G)</label><input type="number" id="sugar_w" value="1000"></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label id="lbl-m3">گھی قیمت/KG</label><input type="number" id="ghee_p" value="450"></div>
+                <div class="input-group"><label id="lbl-mw3">گھی وزن (G)</label><input type="number" id="ghee_w" value="1000"></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label id="lbl-m4">سوجی قیمت/KG</label><input type="number" id="suji_p" value="120"></div>
+                <div class="input-group"><label id="lbl-mw4">سوجی وزن (G)</label><input type="number" id="suji_w" value="1000"></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label>ایک عدد کا متوقع وزن (G)</label><input type="number" id="khatai_size" value="10"></div>
+            </div>
+
+            <div class="section-title">💰 کارخانہ و پیکنگ اخراجات:</div>
+            <div class="row">
+                <div class="input-group"><label>لیبر مزدوری</label><input type="number" id="labor_input" value="500"></div>
+                <div class="input-group"><label>گیس/بجلی خرچہ</label><input type="number" id="gas_input" value="200"></div>
+            </div>
+            <div class="row">
+                <div class="input-group"><label>خالی ڈبے کی قیمت</label><input type="number" id="box_price" value="15"></div>
+                <div class="input-group"><label>کارٹن میں ڈبے (تعداد)</label><input type="number" id="carton_size" value="24"></div>
+            </div>
+
+            <div class="section-title">📈 کمیشن اور فروخت (Sales Logic):</div>
+            <div class="row">
+                <div class="input-group"><label>فروخت قیمت (فی ڈبہ)</label><input type="number" id="sell_price" value="450"></div>
+                <div class="input-group"><label>سیلز کمیشن (فی ڈبہ)</label><input type="number" id="commission" value="20"></div>
+            </div>
+
+            <button class="btn" onclick="calculateReport()">⚡ فیکٹری رپورٹ اور سیو کریں</button>
+            <div id="result-box" class="result-box"></div>
+            <button class="btn-back" onclick="switchScreen('screen-dashboard')">⬅️ واپس ڈیش بورڈ پر جائیں</button>
+        </div>
+    </div>
+
+    <div id="screen-history" class="screen">
+        <div class="header" style="padding: 15px;">
+            <h2 style="margin:0; font-size: 18px;">ہفتہ وار کاروباری لیجر</h2>
+        </div>
+        <div class="content">
+            <div id="summary-box" class="summary-box"></div>
+            <div class="section-title">📋 تاریخ، ریسیپی و کاریگر وار لاگ:</div>
+            <div id="history-list" class="history-list"></div>
+            <button class="btn btn-danger" style="margin-top:20px;" onclick="clearHistory()">🧹 نیا ہفتہ شروع کریں (Clear All)</button>
+            <button class="btn-back" onclick="switchScreen('screen-dashboard')">⬅️ واپس ڈیش بورڈ پر جائیں</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ایپ لوڈ ہوتے ہی LocalStorage سے پرانا ڈیٹا نکالنا
+    let weeklyBatches = JSON.parse(localStorage.getItem('athar_erp_data')) || [];
+
+    document.getElementById('batch-date').value = new Date().toISOString().split('T')[0];
+
+    function switchScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    // ریسیپی بدلنے پر نام خود بخود تبدیل کرنے کا جادو
+    function updateRecipeLabels() {
+        const type = document.getElementById('recipe-select').value;
+        if(type === 'cake') {
+            document.getElementById('lbl-m1').innerText = "انڈے/مکسچر قیمت/KG";
+            document.getElementById('lbl-m2').innerText = "چینی قیمت/KG";
+            document.getElementById('lbl-m3').innerText = "مکھن/آئل قیمت/KG";
+            document.getElementById('lbl-m4').innerText = "میدہ/پاؤڈر قیمت/KG";
+        } else {
+            document.getElementById('lbl-m1').innerText = "میدہ قیمت/KG";
+            document.getElementById('lbl-m2').innerText = "چینی قیمت/KG";
+            document.getElementById('lbl-m3').innerText = "گھی قیمت/KG";
+            document.getElementById('lbl-m4').innerText = "سوجی قیمت/KG";
+        }
+    }
+
+    function calculateReport() {
+        try {
+            const recipeType = document.getElementById('recipe-select').options[document.getElementById('recipe-select').selectedIndex].text;
+            const date = document.getElementById('batch-date').value;
+            const worker = document.getElementById('worker-name').value;
+            
+            const maidaP = parseFloat(document.getElementById('maida-p').value);
+            const maidaW = parseFloat(document.getElementById('maida-w').value);
+            const sugarP = parseFloat(document.getElementById('sugar_p').value);
+            const sugarW = parseFloat(document.getElementById('sugar_w').value);
+            const gheeP = parseFloat(document.getElementById('ghee_p').value);
+            const gheeW = parseFloat(document.getElementById('ghee_w').value);
+            const sujiP = parseFloat(document.getElementById('suji_p').value);
+            const sujiW = parseFloat(document.getElementById('suji_w').value);
+            
+            const khataiSize = parseFloat(document.getElementById('khatai_size').value);
+            const labor = parseFloat(document.getElementById('labor_input').value);
+            const gas = parseFloat(document.getElementById('gas_input').value);
+            const boxPrice = parseFloat(document.getElementById('box_price').value);
+            const cartonSize = parseFloat(document.getElementById('carton_size').value);
+            const sellPrice = parseFloat(document.getElementById('sell_price').value);
+            const commission = parseFloat(document.getElementById('commission').value);
+
+            const matCost = (maidaP * (maidaW / 1000)) + (sugarP * (sugarW / 1000)) + (gheeP * (gheeW / 1000)) + (sujiP * (sujiW / 1000));
+            const totalWeight = maidaW + sugarW + gheeW + sujiW;
+            const totalPieces = totalWeight / khataiSize;
+            
+            const boxesNeeded = totalPieces / 24;
+            const packingCost = boxesNeeded * boxPrice;
+            const totalCommission = boxesNeeded * commission;
+            const fixedRent = 100;
+
+            const totalExpense = matCost + labor + gas + packingCost + fixedRent + totalCommission;
+            const costPerBox = totalExpense / boxesNeeded;
+            const cartons = boxesNeeded / cartonSize;
+            const totalRevenue = boxesNeeded * sellPrice;
+            const netProfit = totalRevenue - totalExpense;
+
+            const resBox = document.getElementById('result-box');
+            resBox.style.display = 'block';
+            resBox.innerHTML = `
+                <strong>📊 فیکٹری پروڈکشن رپورٹ (${date}):</strong><br>
+                • ریسیپی: ${recipeType}<br>
+                • تیار ڈبے: ${Math.floor(boxesNeeded)} Boxes | کارٹن: ${cartons.toFixed(2)}<br>
+                • ایک ڈبے کی لاگت: Rs. ${costPerBox.toFixed(1)}<br>
+                • کُل اخراجات: Rs. ${totalExpense.toFixed(0)}<br>
+                <span style="color: ${netProfit >= 0 ? 'green' : 'red'}; font-weight:bold;">
+                    💰 خالص منافع (Net Profit): Rs. ${netProfit.toFixed(0)}
+                </span>
+            `;
+
+            // مستقل اسٹوریج لاجک (LocalStorage)
+            weeklyBatches.push({
+                date: date,
+                worker: worker,
+                recipe: recipeType,
+                boxes: Math.floor(boxesNeeded),
+                cartons: cartons.toFixed(2),
+                cost: totalExpense.toFixed(0),
+                profit: netProfit.toFixed(0)
+            });
+
+            // ڈیٹا موبائل میموری میں لاک کرنا
+            localStorage.setItem('athar_erp_data', JSON.stringify(weeklyBatches));
+
+        } catch (error) {
+            alert("⚠️ نمبرز چیک کریں!");
+        }
+    }
+
+    function renderHistory() {
+        const summaryBox = document.getElementById('summary-box');
+        const listContainer = document.getElementById('history-list');
+        listContainer.innerHTML = '';
+
+        if (weeklyBatches.length === 0) {
+            summaryBox.innerHTML = `<strong>📊 ابھی تک کوئی ریکارڈ موجود نہیں ہے۔</strong>`;
+            listContainer.innerHTML = `<p style="color:grey; text-align:center;">کوئی گھان ریکارڈ نہیں ملا۔</p>`;
+            return;
+        }
+
+        let totalBoxes = 0;
+        let totalCost = 0;
+        let totalProfit = 0;
+
+        weeklyBatches.forEach(b => {
+            totalBoxes += parseInt(b.boxes);
+            totalCost += parseFloat(b.cost);
+            totalProfit += parseFloat(b.profit);
+        });
+
+        summaryBox.innerHTML = `
+            <strong>🧾 مجموعی کاروباری نچوڑ:</strong><br>
+            • کُل گھان: ${weeklyBatches.length} | کُل تیار ڈبے: ${totalBoxes}<br>
+            • کُل اخراجات: Rs. ${totalCost.toFixed(0)}<br>
+            <strong style="color:green;">💰 کُل خالص منافع: Rs. ${totalProfit.toFixed(0)}</strong>
+        `;
+
+        weeklyBatches.forEach((batch, index) => {
+            const card = document.createElement('div');
+            card.className = 'history-card';
+            card.innerHTML = `
+                <div class="history-card-header">
+                    <span>🔹 گھان #${index + 1} | 📅 ${batch.date}</span>
+                    <span>👤 ${batch.worker}</span>
+                </div>
+                <div style="font-weight:bold; color:#E65100;">🍕 ریسیپی: ${batch.recipe}</div>
+                <div>📦 پیکنگ: ${batch.boxes} ڈبے (${batch.cartons} کارٹن)</div>
+                <div class="history-card-row">
+                    <span style="color:blue;">💸 لاگت: Rs. ${batch.cost}</span>
+                    <span style="font-weight:bold; color: ${parseFloat(batch.profit) >= 0 ? 'green' : 'red'}">
+                        منافع: Rs. ${batch.profit}
+                    </span>
+                </div>
+            `;
+            listContainer.appendChild(card);
+        });
+    }
+
+    function clearHistory() {
+        if(confirm("کیا آپ واقعی پورا ریکارڈ صاف کرنا چاہتے ہیں؟")) {
+            weeklyBatches = [];
+            localStorage.removeItem('athar_erp_data');
+            renderHistory();
+        }
+    }
+</script>
+
+</body>
+</html>

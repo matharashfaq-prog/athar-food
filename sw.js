@@ -1,4 +1,4 @@
-const CACHE_NAME = 'athar-food-v3.00';
+const CACHE_NAME = 'athar-food-v5.00';
 const ASSETS = [
   './',
   './index.html'
